@@ -10,10 +10,11 @@ output: pdf_document
 knitr::opts_chunk$set(warnings = FALSE, messages = FALSE, errors = FALSE, include = TRUE)
 ```
 
+## 9.4.2 Initializing git for an R Project
 
 Write a piece of code that lists the files you saved in the data subdirectory.
 
-```{r}
+```{r in_class}
 list.files("../data")
 ```
 
