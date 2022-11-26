@@ -35,4 +35,7 @@ homicides <- read_csv("../data/homicide-data.csv") %>%
          city_name = paste0(city, ", ", state))
 ```
 
-
+```{r subset_denver}
+homicides_denver <- homicides %>%
+  filter(city == "Denver")
+```
