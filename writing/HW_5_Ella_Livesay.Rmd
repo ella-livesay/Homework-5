@@ -26,6 +26,8 @@ Pick one city in the data. Create a map showing the locations of the homicides i
 library(tidyverse)
 library(sf)
 library(tigris)
+library(ggplot2)
+library(forcats)
 ```
 
 
@@ -42,5 +44,13 @@ denver <- tracts(state = "CO", cb = TRUE, class = "sf") %>%
 
 ```{r subset_denver}
 homicides_denver <- homicides %>%
-  filter(city == "Denver")
+  filter(city == "Denver") %>%
+  mutate(solved_status = ifelse(disposition %in% c("Closed without arrest", "Open/No arrest"),"Unsolved","Solved"),
+         race = fct_lump(victim_race, 3)) 
+
+homicides_denver <- st_as_sf(homicides_denver, coords = c("lon", "lat"))%>%
+  st_set_crs(4269)
 ```
+
+
+
