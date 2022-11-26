@@ -24,6 +24,8 @@ Pick one city in the data. Create a map showing the locations of the homicides i
 
 ```{r load_library}
 library(tidyverse)
+library(sf)
+library(tigris)
 ```
 
 
@@ -33,6 +35,9 @@ homicides <- read_csv("../data/homicide-data.csv") %>%
                            state == "wI" ~ "WI",
                            city != "Tulsa" ~ state),
          city_name = paste0(city, ", ", state))
+
+denver <- tracts(state = "CO", cb = TRUE, class = "sf") %>%
+  filter(COUNTYFP == "031")
 ```
 
 ```{r subset_denver}
