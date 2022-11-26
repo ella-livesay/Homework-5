@@ -52,5 +52,9 @@ homicides_denver <- st_as_sf(homicides_denver, coords = c("lon", "lat"))%>%
   st_set_crs(4269)
 ```
 
-
-
+```{r mapping}
+ggplot() +
+  geom_sf(data = denver) +
+  geom_sf(data = homicides_denver, aes(color = race)) +
+  facet_wrap(~solved_status)
+```
