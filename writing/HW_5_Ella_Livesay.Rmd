@@ -28,6 +28,8 @@ library(sf)
 library(tigris)
 library(ggplot2)
 library(forcats)
+library(RColorBrewer)
+library(ggthemes)
 ```
 
 
@@ -54,7 +56,17 @@ homicides_denver <- st_as_sf(homicides_denver, coords = c("lon", "lat"))%>%
 
 ```{r mapping}
 ggplot() +
-  geom_sf(data = denver) +
-  geom_sf(data = homicides_denver, aes(color = race)) +
-  facet_wrap(~solved_status)
+  geom_sf(data = denver, fill = "white", size = 0.1) +
+  geom_sf(data = homicides_denver, aes(color = race), alpha = 0.65, size = 1, shape = 16) +
+  facet_wrap(~solved_status) +
+  labs(color = "") +
+  ggtitle("Homicides by Race in Denver, CO", subtitle = "2010-2017") +
+  scale_color_brewer(palette = "Pastel1") +
+  guides(color = guide_legend(override.aes = list(size=3))) +
+  theme_minimal() +
+  theme(axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        panel.grid = element_line(color = "white"),
+        text=element_text(size=12,  family="serif"),
+        legend.position = "bottom") 
 ```
