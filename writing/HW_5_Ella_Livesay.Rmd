@@ -30,6 +30,7 @@ library(ggplot2)
 library(forcats)
 library(RColorBrewer)
 library(ggthemes)
+library(lubridate)
 ```
 
 
@@ -47,7 +48,9 @@ denver <- tracts(state = "CO", cb = TRUE, class = "sf") %>%
 ```{r subset_denver}
 homicides_denver <- homicides %>%
   filter(city == "Denver") %>%
-  mutate(solved_status = ifelse(disposition %in% c("Closed without arrest", "Open/No arrest"),"Unsolved","Solved"),
+  mutate(solved_status = ifelse(disposition %in% 
+                                  c("Closed without arrest", "Open/No arrest"),
+                                "Unsolved","Solved"),
          race = fct_lump(victim_race, 3)) 
 
 homicides_denver <- st_as_sf(homicides_denver, coords = c("lon", "lat"))%>%
@@ -57,7 +60,8 @@ homicides_denver <- st_as_sf(homicides_denver, coords = c("lon", "lat"))%>%
 ```{r mapping}
 ggplot() +
   geom_sf(data = denver, fill = "white", size = 0.1) +
-  geom_sf(data = homicides_denver, aes(color = race), alpha = 0.65, size = 1, shape = 16) +
+  geom_sf(data = homicides_denver, aes(color = race), alpha = 0.65,
+          size = 1, shape = 16) +
   facet_wrap(~solved_status) +
   labs(color = "") +
   ggtitle("Homicides by Race in Denver, CO", subtitle = "2010-2017") +
@@ -69,4 +73,25 @@ ggplot() +
         panel.grid = element_line(color = "white"),
         text=element_text(size=12,  family="serif"),
         legend.position = "bottom") 
+```
+
+## Homework 5: Choice 2
+
+Recreate the graph shown below. It shows monthly homicides in Baltimore, with a reference added for the date of the arrest of Freddie Gray and color used to show colder months (November through April) versus warmer months (May through October). There is a smooth line added to help show seasonal and long-term trends in this data.
+
+```{r subset_baltimore}
+homicides_baltimore <- homicides %>%
+  filter(city == "Baltimore") %>%
+  mutate(solved_status = ifelse(disposition %in% 
+                                  c("Closed without arrest", "Open/No arrest"),
+                                "Unsolved","Solved"),
+         race = fct_lump(victim_race, 3),
+         date = ymd(reported_date),
+         season = ifelse(month(date) %in% c(11,12,1,2,3,4),"Winter","Summer")) 
+
+homicides_baltimore <- st_as_sf(homicides_baltimore, coords = c("lon", "lat"))%>%
+  st_set_crs(4269)
+
+baltimore <- tracts(state = "MD", cb = TRUE, class = "sf") %>%
+  filter(COUNTYFP == "510")
 ```
