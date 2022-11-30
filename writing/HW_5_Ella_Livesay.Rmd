@@ -7,12 +7,12 @@ output: pdf_document
 
 
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set(warnings = FALSE, messages = FALSE, errors = FALSE, include = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warnings = FALSE, messages = FALSE, errors = FALSE, include = TRUE)
 ```
 
 ## 9.4.2 Initializing git for an R Project
 
-Write a piece of code that lists the files you saved in the data subdirectory.
+Write a piece of code that lists the files you saved in the data sub directory.
 
 ```{r in_class}
 list.files("../data")
@@ -22,7 +22,7 @@ list.files("../data")
 
 Pick one city in the data. Create a map showing the locations of the homicides in that city, using the `sf` framework discussed in class. Use `tigris` to download boundaries for some sub-city geography (e.g., tracts, block groups, county subdivisions) to show as a layer underneath the points showing homicides. Use different facets for solved versus unsolved homicides and different colors to show the three race groups with the highest number of homicides for that city (you may find the `fct_lump` function from `forcats` useful for this).
 
-```{r load_library}
+```{r load_library, include = FALSE}
 library(tidyverse)
 library(sf)
 library(tigris)
@@ -60,12 +60,12 @@ homicides_denver <- st_as_sf(homicides_denver, coords = c("lon", "lat"))%>%
 ```{r mapping}
 ggplot() +
   geom_sf(data = denver, fill = "white", size = 0.1) +
-  geom_sf(data = homicides_denver, aes(color = race), alpha = 0.65,
+  geom_sf(data = homicides_denver, aes(color = race), alpha = 0.75,
           size = 1, shape = 16) +
   facet_wrap(~solved_status) +
   labs(color = "") +
   ggtitle("Homicides by Race in Denver, CO", subtitle = "2010-2017") +
-  scale_color_brewer(palette = "Pastel1") +
+  scale_color_brewer(palette = "Accent") +
   guides(color = guide_legend(override.aes = list(size=3))) +
   theme_minimal() +
   theme(axis.ticks = element_blank(),
@@ -87,11 +87,31 @@ homicides_baltimore <- homicides %>%
                                 "Unsolved","Solved"),
          race = fct_lump(victim_race, 3),
          date = ymd(reported_date),
-         season = ifelse(month(date) %in% c(11,12,1,2,3,4),"Winter","Summer")) 
+         season = ifelse(month(date) %in% c(11,12,1,2,3,4),"Winter","Summer"),
+         month = ym(paste0(year(date),month(date))))
 
-homicides_baltimore <- st_as_sf(homicides_baltimore, coords = c("lon", "lat"))%>%
-  st_set_crs(4269)
+freddie_gray <- homicides_baltimore %>%
+  filter(victim_first == "FREDDIE CARLOS" & victim_last == "GREY")
 
-baltimore <- tracts(state = "MD", cb = TRUE, class = "sf") %>%
-  filter(COUNTYFP == "510")
+homicides_baltimore_count <- homicides_baltimore %>%
+  group_by(month, season) %>%
+  summarize(count = n())
 ```
+
+```{r graphing, fig.width = 8, fig.height = 3}
+ggplot() +
+  geom_bar(data = homicides_baltimore, aes(x = month, fill = season), 
+           color = "gray70") +
+  geom_smooth(data = homicides_baltimore_count, aes(x = month, y = count),
+              se = FALSE, span = 0.1) +
+  geom_vline(data = freddie_gray, aes(xintercept = month),
+              color = "red", linetype = 2, size = 1.25) +
+  annotate("text", x=ym("2014-08"), y=40, label="Arrest of\nFreddie Gray", 
+           size=3.5, color="gray84") +
+  ggtitle("Homicides in Baltimore, MD") + 
+  labs(x = "Date", y = "Monthly homicides", fill = "") +
+  scale_fill_manual(values=c("Summer"="gray84", "Winter"="lightblue1")) +
+  theme_dark() +
+  theme(legend.position = "bottom")
+```
+
