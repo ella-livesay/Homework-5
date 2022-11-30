@@ -79,6 +79,9 @@ ggplot() +
 
 Recreate the graph shown below. It shows monthly homicides in Baltimore, with a reference added for the date of the arrest of Freddie Gray and color used to show colder months (November through April) versus warmer months (May through October). There is a smooth line added to help show seasonal and long-term trends in this data.
 
+![From Course Book](coursebook_graph/hw_5_plot_coursebook.png)
+
+
 ```{r subset_baltimore}
 homicides_baltimore <- homicides %>%
   filter(city == "Baltimore") %>%
@@ -98,7 +101,7 @@ homicides_baltimore_count <- homicides_baltimore %>%
   summarize(count = n())
 ```
 
-```{r graphing, fig.width = 8, fig.height = 3}
+```{r graphing, fig.width = 8, fig.height = 2.75}
 ggplot() +
   geom_bar(data = homicides_baltimore, aes(x = month, fill = season), 
            color = "gray70") +
